@@ -1,0 +1,3318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeamSpace - Collaborative Workspace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+    /* Light theme colors */
+    --primary-color: #2196F3;
+    --primary-light: #64B5F6;
+    --primary-dark: #1976D2;
+    --accent-color: #FF4081;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --text-tertiary: #999999;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --bg-tertiary: #e0e0e0;
+    --border-color: #e0e0e0;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --hover-bg: #f0f0f0;
+    --active-indicator: #4CAF50;
+    --away-indicator: #FFC107;
+    --typing-color: var(--text-secondary);
+}
+
+.dark-theme {
+    /* Dark theme colors */
+    --primary-color: #2196F3;
+    --primary-light: #64B5F6;
+    --primary-dark: #1976D2;
+    --accent-color: #FF4081;
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+    --text-tertiary: #808080;
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-tertiary: #2d2d2d;
+    --border-color: #333333;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --hover-bg: #2a2a2a;
+    --active-indicator: #4CAF50;
+    --away-indicator: #FFC107;
+    --typing-color: var(--text-secondary);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* App Container */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Top Navigation */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px var(--shadow-color);
+    z-index: 10;
+}
+
+.nav-left h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.nav-center .active-users {
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: -8px;
+    border: 2px solid var(--bg-primary);
+    position: relative;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-avatar.active::after,
+.user-avatar.away::after,
+.status-indicator {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    bottom: 0;
+    right: 0;
+    border: 1px solid var(--bg-primary);
+}
+
+.user-avatar.active::after,
+.status-indicator.active {
+    background-color: var(--active-indicator);
+}
+
+.user-avatar.away::after,
+.status-indicator.away {
+    background-color: var(--away-indicator);
+}
+
+.more-users {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    margin-right: 1rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.theme-toggle:hover {
+    background-color: var(--hover-bg);
+}
+
+.user-profile {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.user-profile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Main Content */
+.main-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 280px;
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.add-workspace-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.add-workspace-btn:hover {
+    background-color: var(--hover-bg);
+}
+
+.workspace-list {
+    list-style: none;
+    padding: 0.5rem 0;
+}
+
+.workspace-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.workspace-item:hover {
+    background-color: var(--hover-bg);
+}
+
+.workspace-item.active {
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    font-weight: 500;
+}
+
+.workspace-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background-color: var(--primary-light);
+    color: white;
+    margin-right: 0.75rem;
+}
+
+.workspace-name {
+    flex: 1;
+}
+
+.unread-badge {
+    background-color: var(--accent-color);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.125rem 0.375rem;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.sidebar-section {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.sidebar-section h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.chat-list {
+    list-style: none;
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-radius: 4px;
+}
+
+.chat-item:hover {
+    background-color: var(--hover-bg);
+}
+
+.chat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 0.75rem;
+    position: relative;
+}
+
+.chat-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chat-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.chat-name {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.chat-preview {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-time {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+/* Workspace Content */
+.workspace-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.workspace-content.split-layout {
+    flex-direction: column;
+}
+
+.workspace-content.split-layout .workspace-views {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+}
+
+.workspace-content.split-layout .chat-view,
+.workspace-content.split-layout .whiteboard-view {
+    width: 50%;
+    display: flex !important;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+    height: 100%;
+}
+
+.workspace-content.split-layout .whiteboard-view {
+    border-right: none;
+    border-left: 1px solid var(--border-color);
+}
+
+.workspace-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.workspace-title h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    margin-bottom: 0.25rem;
+}
+
+.workspace-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.workspace-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.view-toggle {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+}
+
+.view-toggle:hover {
+    background-color: var(--hover-bg);
+}
+
+.view-toggle.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.workspace-views {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Chat View */
+.chat-view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    display: none;
+}
+
+.chat-view.active-view {
+    display: flex;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.message-group {
+    margin-bottom: 1rem;
+}
+
+.message-date {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin: 1rem 0;
+    position: relative;
+}
+
+.message-date::before,
+.message-date::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 50px);
+    height: 1px;
+    background-color: var(--border-color);
+}
+
+.message-date::before {
+    left: 0;
+}
+
+.message-date::after {
+    right: 0;
+}
+
+.message {
+    display: flex;
+    margin-bottom: 1rem;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+.message-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.message-content {
+    flex: 1;
+    max-width: calc(100% - 60px);
+}
+
+.message-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.message-author {
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.message-status {
+    margin-left: 0.5rem;
+    color: var(--primary-color);
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+}
+
+.message-status .material-icons {
+    font-size: 1rem;
+}
+
+.message-text {
+    margin-bottom: 0.5rem;
+}
+
+.message-text p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.message-attachments {
+    margin-bottom: 0.5rem;
+}
+
+.attachment {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--bg-secondary);
+    padding: 0.375rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.attachment .material-icons {
+    font-size: 1rem;
+    margin-right: 0.375rem;
+    color: var(--text-secondary);
+}
+
+.message-reactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.reaction {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--bg-secondary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.reaction:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.reaction-count {
+    margin-left: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.add-reaction-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.add-reaction-btn:hover {
+    background-color: var(--hover-bg);
+}
+
+.message-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.thread-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.thread-btn:hover {
+    background-color: var(--hover-bg);
+}
+
+.message.typing .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--typing-color);
+    animation: typing 1s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-6px);
+    }
+}
+
+.chat-input-container {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.format-toolbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background-color: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+.format-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.format-btn:hover {
+    background-color: var(--hover-bg);
+}
+
+.format-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Emoji picker */
+.emoji-picker {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-width: 320px;
+}
+
+.emoji-item {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.emoji-item:hover {
+    background-color: var(--hover-bg);
+}
+
+/* File attachments */
+.file-preview {
+    margin: 0.5rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 300px;
+}
+
+.file-preview-content {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    position: relative;
+}
+
+.file-thumbnail {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 0.75rem;
+}
+
+.file-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-right: 0.75rem;
+}
+
+.file-info {
+    flex: 1;
+}
+
+.file-name {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    word-break: break-all;
+    font-size: 0.875rem;
+}
+
+.file-size {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.remove-file-btn {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+/* Formatted text styles */
+.message-text strong {
+    font-weight: 700;
+}
+
+.message-text em {
+    font-style: italic;
+}
+
+.message-text code {
+    font-family: monospace;
+    background-color: var(--bg-secondary);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.message-text a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.message-text a:hover {
+    text-decoration: underline;
+}
+
+.message-text ul,
+.message-text ol {
+    margin-left: 1.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.message-text li {
+    margin-bottom: 0.25rem;
+}
+
+.chat-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+}
+
+.chat-input {
+    flex: 1;
+    min-height: 80px;
+    max-height: 150px;
+    padding: 0.75rem;
+    padding-right: 3rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    transition: border-color 0.2s;
+    overflow-y: auto;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Placeholder for contenteditable */
+.chat-input[contenteditable=true]:empty:before {
+    content: attr(placeholder);
+    color: var(--text-tertiary);
+    pointer-events: none;
+}
+
+/* Styling for formatted content */
+.chat-input strong {
+    font-weight: 700;
+}
+
+.chat-input em {
+    font-style: italic;
+}
+
+.chat-input code {
+    font-family: monospace;
+    background-color: var(--bg-secondary);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.chat-input a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.chat-input a:hover {
+    text-decoration: underline;
+}
+
+.chat-input ul,
+.chat-input ol {
+    margin-left: 1.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.chat-input li {
+    margin-bottom: 0.25rem;
+}
+
+.chat-input-actions {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.attachment-btn,
+.emoji-btn,
+.send-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.attachment-btn:hover,
+.emoji-btn:hover {
+    background-color: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.send-btn {
+    color: var(--primary-color);
+}
+
+.send-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Whiteboard View */
+.whiteboard-view {
+    height: 100%;
+    display: none;
+    flex-direction: column;
+}
+
+.whiteboard-toolbar {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    gap: 1rem;
+    background-color: var(--bg-secondary);
+}
+
+.tool-group {
+    display: flex;
+    gap: 0.5rem;
+    padding-right: 1rem;
+    border-right: 1px solid var(--border-color);
+}
+
+.tool-group:last-child {
+    border-right: none;
+}
+
+.tool-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.tool-btn:hover {
+    background-color: var(--hover-bg);
+}
+
+.tool-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Shape selector */
+.shape-tool-group {
+    position: relative;
+}
+
+.shape-selector {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    padding: 0.5rem;
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 100;
+    min-width: 150px;
+}
+
+.tool-btn[data-tool="shape"]:hover + .shape-selector,
+.shape-selector:hover {
+    display: flex !important;
+}
+
+/* Make shape selector more visible */
+.shape-selector {
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Add a small indicator to show current shape */
+.tool-btn[data-tool="shape"].active::after {
+    content: "";
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid var(--primary-color);
+}
+
+.shape-selector-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    padding: 0 0.5rem;
+}
+
+.shape-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    width: 100%;
+    text-align: left;
+}
+
+.shape-btn:hover {
+    background-color: var(--hover-bg);
+}
+
+.shape-btn.active {
+    color: var(--primary-color);
+    font-weight: 500;
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+}
+
+.shape-name {
+    font-size: 0.9rem;
+}
+
+.current-shape-indicator {
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    color: var(--primary-color);
+}
+
+.color-picker {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.color-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+}
+
+.color-btn.active {
+    border-color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.whiteboard-container {
+    flex: 1;
+    position: relative;
+    overflow: auto;
+    background-color: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#whiteboard {
+    background-color: white;
+    box-shadow: 0 0 10px var(--shadow-color);
+    transition: transform 0.1s ease-out;
+}
+
+.user-cursor {
+    position: absolute;
+    pointer-events: none;
+    z-index: 10;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.cursor-pointer {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.cursor-pointer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: inherit;
+    opacity: 0.3;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(2.5);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.cursor-label {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+/* Thread Panel */
+.thread-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 320px;
+    height: 100%;
+    background-color: var(--bg-primary);
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 5;
+}
+
+.thread-panel.open {
+    transform: translateX(0);
+}
+
+.thread-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.thread-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.close-thread-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.close-thread-btn:hover {
+    background-color: var(--hover-bg);
+}
+
+.thread-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.thread-original-message {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+}
+
+.thread-replies {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.thread-input-container {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 0.5rem;
+}
+
+.thread-input {
+    flex: 1;
+    min-height: 60px;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    resize: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    transition: border-color 0.2s;
+}
+
+.thread-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.thread-send-btn {
+    align-self: flex-end;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.thread-send-btn:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Mobile Navigation */
+.mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-primary);
+    border-top: 1px solid var(--border-color);
+    padding: 0.5rem;
+    justify-content: space-around;
+    z-index: 100;
+}
+
+.mobile-nav-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: color 0.2s;
+}
+
+.mobile-nav-btn.active {
+    color: var(--primary-color);
+}
+
+/* Whiteboard text input styles */
+.whiteboard-text-input {
+    position: absolute;
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    padding: 4px;
+    min-width: 100px;
+    min-height: 24px;
+    z-index: 100;
+    resize: both;
+    overflow: hidden;
+    outline: none;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+/* CSS Variables for RGB values (for opacity) */
+:root {
+    --primary-color-rgb: 33, 150, 243;
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 240px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: absolute;
+        left: -280px;
+        top: 0;
+        bottom: 0;
+        z-index: 20;
+        transition: left 0.3s ease-in-out;
+        width: 280px;
+    }
+
+    .sidebar.open {
+        left: 0;
+    }
+
+    .thread-panel {
+        width: 100%;
+    }
+
+    .mobile-nav {
+        display: flex;
+    }
+
+    .workspace-content {
+        padding-bottom: 60px; /* Space for mobile nav */
+    }
+
+    .nav-center {
+        display: none;
+    }
+
+    .workspace-actions .btn-text {
+        display: none;
+    }
+
+    .workspace-actions .view-toggle {
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .top-nav {
+        padding: 0.75rem 1rem;
+    }
+
+    .workspace-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .workspace-actions {
+        align-self: stretch;
+        justify-content: space-between;
+    }
+
+    .format-toolbar {
+        overflow-x: auto;
+        padding: 0.5rem 0;
+    }
+
+    .whiteboard-toolbar {
+        overflow-x: auto;
+    }
+
+    .tool-group {
+        flex-shrink: 0;
+    }
+}
+    </style>
+</head>
+<body class="light-theme">
+    <div class="app-container">
+        <!-- Navigation Bar -->
+        <nav class="top-nav">
+            <div class="nav-left">
+                <h1>TeamSpace</h1>
+            </div>
+            <div class="nav-center">
+                <div class="active-users">
+                    <div class="user-avatar active" title="Jane Doe (Active)">
+                        <img src="https://i.pravatar.cc/150?img=1" alt="Jane Doe">
+                    </div>
+                    <div class="user-avatar active" title="John Smith (Active)">
+                        <img src="https://i.pravatar.cc/150?img=2" alt="John Smith">
+                    </div>
+                    <div class="user-avatar away" title="Alex Johnson (Away)">
+                        <img src="https://i.pravatar.cc/150?img=3" alt="Alex Johnson">
+                    </div>
+                    <div class="user-avatar" title="Sam Wilson">
+                        <img src="https://i.pravatar.cc/150?img=4" alt="Sam Wilson">
+                    </div>
+                    <div class="more-users">+3</div>
+                </div>
+            </div>
+            <div class="nav-right">
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+                    <span class="material-icons">dark_mode</span>
+                </button>
+                <div class="user-profile">
+                    <img src="https://i.pravatar.cc/150?img=5" alt="Your Profile">
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2>Workspaces</h2>
+                    <button class="add-workspace-btn">
+                        <span class="material-icons">add</span>
+                    </button>
+                </div>
+                <ul class="workspace-list">
+                    <li class="workspace-item active">
+                        <span class="workspace-icon">
+                            <span class="material-icons">groups</span>
+                        </span>
+                        <span class="workspace-name">Team Alpha</span>
+                        <span class="unread-badge">3</span>
+                    </li>
+                    <li class="workspace-item">
+                        <span class="workspace-icon">
+                            <span class="material-icons">rocket_launch</span>
+                        </span>
+                        <span class="workspace-name">Project Launch</span>
+                    </li>
+                    <li class="workspace-item">
+                        <span class="workspace-icon">
+                            <span class="material-icons">lightbulb</span>
+                        </span>
+                        <span class="workspace-name">Brainstorming</span>
+                    </li>
+                </ul>
+                <div class="sidebar-section">
+                    <h3>Recent Chats</h3>
+                    <ul class="chat-list">
+                        <li class="chat-item">
+                            <div class="chat-avatar">
+                                <img src="https://i.pravatar.cc/150?img=1" alt="Jane Doe">
+                                <span class="status-indicator active"></span>
+                            </div>
+                            <div class="chat-info">
+                                <span class="chat-name">Jane Doe</span>
+                                <span class="chat-preview">Let's discuss the new design...</span>
+                            </div>
+                            <div class="chat-time">2m</div>
+                        </li>
+                        <li class="chat-item">
+                            <div class="chat-avatar">
+                                <img src="https://i.pravatar.cc/150?img=2" alt="John Smith">
+                                <span class="status-indicator active"></span>
+                            </div>
+                            <div class="chat-info">
+                                <span class="chat-name">John Smith</span>
+                                <span class="chat-preview">I've updated the whiteboard...</span>
+                            </div>
+                            <div class="chat-time">15m</div>
+                        </li>
+                        <li class="chat-item">
+                            <div class="chat-avatar">
+                                <img src="https://i.pravatar.cc/150?img=3" alt="Alex Johnson">
+                                <span class="status-indicator away"></span>
+                            </div>
+                            <div class="chat-info">
+                                <span class="chat-name">Alex Johnson</span>
+                                <span class="chat-preview">Will be back in 30 minutes</span>
+                            </div>
+                            <div class="chat-time">1h</div>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Workspace Content -->
+            <div class="workspace-content">
+                <div class="workspace-header">
+                    <div class="workspace-title">
+                        <h2>Team Alpha</h2>
+                        <div class="workspace-subtitle">7 members • 3 online</div>
+                    </div>
+                    <div class="workspace-actions">
+                        <button class="view-toggle active" data-view="chat">
+                            <span class="material-icons">chat</span>
+                            <span class="btn-text">Chat</span>
+                        </button>
+                        <button class="view-toggle" data-view="whiteboard">
+                            <span class="material-icons">draw</span>
+                            <span class="btn-text">Whiteboard</span>
+                        </button>
+                        <button class="view-toggle" data-view="split">
+                            <span class="material-icons">view_agenda</span>
+                            <span class="btn-text">Split View</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="workspace-views">
+                    <!-- Chat View -->
+                    <div class="chat-view active-view">
+                        <div class="chat-messages">
+                            <div class="message-group">
+                                <div class="message-date">Today</div>
+
+                                <div class="message">
+                                    <div class="message-avatar">
+                                        <img src="https://i.pravatar.cc/150?img=1" alt="Jane Doe">
+                                    </div>
+                                    <div class="message-content">
+                                        <div class="message-header">
+                                            <span class="message-author">Jane Doe</span>
+                                            <span class="message-time">10:15 AM</span>
+                                        </div>
+                                        <div class="message-text">
+                                            <p>Hey team! I've been working on the new feature design. What do you think about this approach?</p>
+                                        </div>
+                                        <div class="message-attachments">
+                                            <div class="attachment">
+                                                <span class="material-icons">image</span>
+                                                <span>feature-mockup.png</span>
+                                            </div>
+                                        </div>
+                                        <div class="message-reactions">
+                                            <div class="reaction">
+                                                <span>👍</span>
+                                                <span class="reaction-count">3</span>
+                                            </div>
+                                            <div class="reaction">
+                                                <span>🎉</span>
+                                                <span class="reaction-count">2</span>
+                                            </div>
+                                            <button class="add-reaction-btn">
+                                                <span class="material-icons">add_reaction</span>
+                                            </button>
+                                        </div>
+                                        <div class="message-actions">
+                                            <button class="thread-btn">
+                                                <span class="material-icons">forum</span>
+                                                <span>Thread (2 replies)</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="message">
+                                    <div class="message-avatar">
+                                        <img src="https://i.pravatar.cc/150?img=2" alt="John Smith">
+                                    </div>
+                                    <div class="message-content">
+                                        <div class="message-header">
+                                            <span class="message-author">John Smith</span>
+                                            <span class="message-time">10:30 AM</span>
+                                        </div>
+                                        <div class="message-text">
+                                            <p>I think we should move this discussion to the whiteboard to visualize our ideas better. I've started a diagram there.</p>
+                                        </div>
+                                        <div class="message-reactions">
+                                            <div class="reaction">
+                                                <span>👍</span>
+                                                <span class="reaction-count">2</span>
+                                            </div>
+                                            <button class="add-reaction-btn">
+                                                <span class="material-icons">add_reaction</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="message">
+                                    <div class="message-avatar">
+                                        <img src="https://i.pravatar.cc/150?img=5" alt="You">
+                                    </div>
+                                    <div class="message-content">
+                                        <div class="message-header">
+                                            <span class="message-author">You</span>
+                                            <span class="message-time">10:45 AM</span>
+                                            <span class="message-status">
+                                                <span class="material-icons">done_all</span>
+                                            </span>
+                                        </div>
+                                        <div class="message-text">
+                                            <p>Great idea! I'll join you on the whiteboard. I have some thoughts on how we can improve the user flow.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Typing indicator will be added dynamically -->
+                            </div>
+                        </div>
+
+                        <div class="chat-input-container">
+                            <div class="format-toolbar">
+                                <button class="format-btn" title="Bold">
+                                    <span class="material-icons">format_bold</span>
+                                </button>
+                                <button class="format-btn" title="Italic">
+                                    <span class="material-icons">format_italic</span>
+                                </button>
+                                <button class="format-btn" title="Bulleted List">
+                                    <span class="material-icons">format_list_bulleted</span>
+                                </button>
+                                <button class="format-btn" title="Numbered List">
+                                    <span class="material-icons">format_list_numbered</span>
+                                </button>
+                                <button class="format-btn" title="Code">
+                                    <span class="material-icons">code</span>
+                                </button>
+                                <button class="format-btn" title="Link">
+                                    <span class="material-icons">link</span>
+                                </button>
+                            </div>
+                            <div class="chat-input-wrapper">
+                                <div class="chat-input" contenteditable="true" placeholder="Type a message..."></div>
+                                <div class="chat-input-actions">
+                                    <button class="attachment-btn">
+                                        <span class="material-icons">attach_file</span>
+                                    </button>
+                                    <button class="emoji-btn">
+                                        <span class="material-icons">sentiment_satisfied_alt</span>
+                                    </button>
+                                    <button class="send-btn">
+                                        <span class="material-icons">send</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Whiteboard View -->
+                    <div class="whiteboard-view">
+                        <div class="whiteboard-toolbar">
+                            <div class="tool-group">
+                                <button class="tool-btn active" data-tool="select" title="Selection Tool">
+                                    <span class="material-icons">pan_tool</span>
+                                </button>
+                                <button class="tool-btn" data-tool="pen" title="Pen Tool">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button class="tool-btn" data-tool="text" title="Text Tool">
+                                    <span class="material-icons">text_fields</span>
+                                </button>
+                                <button class="tool-btn" data-tool="eraser" title="Eraser Tool">
+                                    <span class="material-icons">auto_fix_high</span>
+                                </button>
+                            </div>
+                            <div class="tool-group shape-tool-group">
+                                <button class="tool-btn" data-tool="shape" title="Shape Tool">
+                                    <span class="material-icons">category</span>
+                                    <span class="current-shape-indicator"></span>
+                                </button>
+                                <div class="shape-selector">
+                                    <div class="shape-selector-title">Select Shape:</div>
+                                    <button class="shape-btn active" data-shape="rectangle" title="Rectangle">
+                                        <span class="material-icons">crop_square</span>
+                                        <span class="shape-name">Rectangle</span>
+                                    </button>
+                                    <button class="shape-btn" data-shape="circle" title="Circle">
+                                        <span class="material-icons">circle</span>
+                                        <span class="shape-name">Circle</span>
+                                    </button>
+                                    <button class="shape-btn" data-shape="line" title="Line">
+                                        <span class="material-icons">show_chart</span>
+                                        <span class="shape-name">Line</span>
+                                    </button>
+                                    <button class="shape-btn" data-shape="arrow" title="Arrow">
+                                        <span class="material-icons">arrow_right_alt</span>
+                                        <span class="shape-name">Arrow</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="tool-group">
+                                <button class="tool-btn" data-tool="undo" title="Undo">
+                                    <span class="material-icons">undo</span>
+                                </button>
+                                <button class="tool-btn" data-tool="redo" title="Redo">
+                                    <span class="material-icons">redo</span>
+                                </button>
+                                <button class="tool-btn" data-tool="clear" title="Clear Whiteboard">
+                                    <span class="material-icons">delete</span>
+                                </button>
+                            </div>
+                            <div class="tool-group">
+                                <div class="color-picker">
+                                    <button class="color-btn active" style="background-color: #000000;"></button>
+                                    <button class="color-btn" style="background-color: #FF0000;"></button>
+                                    <button class="color-btn" style="background-color: #00FF00;"></button>
+                                    <button class="color-btn" style="background-color: #0000FF;"></button>
+                                    <button class="color-btn" style="background-color: #FFFF00;"></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="whiteboard-container">
+                            <canvas id="whiteboard" width="1000" height="600"></canvas>
+                            <div class="user-cursor" style="left: 250px; top: 150px;" data-original-x="250" data-original-y="150">
+                                <div class="cursor-pointer" style="background-color: #FF0000;"></div>
+                                <div class="cursor-label">John</div>
+                            </div>
+                            <div class="user-cursor" style="left: 450px; top: 300px;" data-original-x="450" data-original-y="300">
+                                <div class="cursor-pointer" style="background-color: #00FF00;"></div>
+                                <div class="cursor-label">Jane</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thread Panel (Hidden by default) -->
+            <div class="thread-panel">
+                <div class="thread-header">
+                    <h3>Thread</h3>
+                    <button class="close-thread-btn">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+                <div class="thread-content">
+                    <div class="thread-original-message">
+                        <div class="message">
+                            <div class="message-avatar">
+                                <img src="https://i.pravatar.cc/150?img=1" alt="Jane Doe">
+                            </div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-author">Jane Doe</span>
+                                    <span class="message-time">10:15 AM</span>
+                                </div>
+                                <div class="message-text">
+                                    <p>Hey team! I've been working on the new feature design. What do you think about this approach?</p>
+                                </div>
+                                <div class="message-attachments">
+                                    <div class="attachment">
+                                        <span class="material-icons">image</span>
+                                        <span>feature-mockup.png</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thread-replies">
+                        <div class="message">
+                            <div class="message-avatar">
+                                <img src="https://i.pravatar.cc/150?img=2" alt="John Smith">
+                            </div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-author">John Smith</span>
+                                    <span class="message-time">10:20 AM</span>
+                                </div>
+                                <div class="message-text">
+                                    <p>I like the overall direction! Could we make the buttons more prominent?</p>
+                                </div>
+                                <div class="message-reactions">
+                                    <div class="reaction">
+                                        <span>👍</span>
+                                        <span class="reaction-count">1</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="message">
+                            <div class="message-avatar">
+                                <img src="https://i.pravatar.cc/150?img=3" alt="Alex Johnson">
+                            </div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-author">Alex Johnson</span>
+                                    <span class="message-time">10:25 AM</span>
+                                </div>
+                                <div class="message-text">
+                                    <p>Agreed with John. Also, what about adding some micro-interactions to improve the user experience?</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thread-input-container">
+                        <textarea class="thread-input" placeholder="Reply to thread..."></textarea>
+                        <button class="thread-send-btn">
+                            <span class="material-icons">send</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation (visible only on small screens) -->
+        <div class="mobile-nav">
+            <button class="mobile-nav-btn active" data-view="chat">
+                <span class="material-icons">chat</span>
+            </button>
+            <button class="mobile-nav-btn" data-view="whiteboard">
+                <span class="material-icons">draw</span>
+            </button>
+            <button class="mobile-nav-btn" data-view="workspaces">
+                <span class="material-icons">groups</span>
+            </button>
+            <button class="mobile-nav-btn" data-view="profile">
+                <span class="material-icons">person</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    // Workspace selection
+    const workspaceItems = document.querySelectorAll('.workspace-item');
+    const workspaceTitle = document.querySelector('.workspace-title h2');
+    const workspaceSubtitle = document.querySelector('.workspace-subtitle');
+
+    workspaceItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Remove active class from all workspace items
+            workspaceItems.forEach(i => i.classList.remove('active'));
+
+            // Add active class to clicked item
+            this.classList.add('active');
+
+            // Update workspace title
+            const workspaceName = this.querySelector('.workspace-name').textContent;
+            workspaceTitle.textContent = workspaceName;
+
+            // Update subtitle with random data (in a real app, this would be actual data)
+            const onlineCount = Math.floor(Math.random() * 5) + 1;
+            const totalCount = Math.floor(Math.random() * 5) + onlineCount;
+            workspaceSubtitle.textContent = `${totalCount} members • ${onlineCount} online`;
+
+            // Track workspace change (will be implemented later)
+            console.log('Workspace changed to:', workspaceName);
+        });
+    });
+
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    themeToggle.addEventListener('click', function() {
+        body.classList.toggle('dark-theme');
+        body.classList.toggle('light-theme');
+
+        // Update icon
+        const icon = themeToggle.querySelector('.material-icons');
+        if (body.classList.contains('dark-theme')) {
+            icon.textContent = 'light_mode';
+        } else {
+            icon.textContent = 'dark_mode';
+        }
+
+        // Save preference to localStorage
+        const theme = body.classList.contains('dark-theme') ? 'dark' : 'light';
+        localStorage.setItem('theme', theme);
+    });
+
+    // Load saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-theme');
+        body.classList.remove('light-theme');
+        themeToggle.querySelector('.material-icons').textContent = 'light_mode';
+    }
+
+    // View Toggle
+    const viewToggles = document.querySelectorAll('.view-toggle');
+    const chatView = document.querySelector('.chat-view');
+    const whiteboardView = document.querySelector('.whiteboard-view');
+    const workspaceContent = document.querySelector('.workspace-content');
+
+    viewToggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const view = this.getAttribute('data-view');
+
+            // Remove active class from all toggles
+            viewToggles.forEach(t => t.classList.remove('active'));
+
+            // Add active class to clicked toggle
+            this.classList.add('active');
+
+            // Reset any previous styles (will be set in the view-specific code)
+
+            // Show the selected view
+            if (view === 'chat') {
+                // If we're in split view, exit it
+                workspaceContent.classList.remove('split-layout');
+
+                // Show chat view only
+                chatView.classList.add('active-view');
+                whiteboardView.classList.remove('active-view');
+                whiteboardView.style.display = 'none';
+                chatView.style.display = 'flex';
+                chatView.style.width = '100%';
+            } else if (view === 'whiteboard') {
+                // If we're in split view, exit it
+                workspaceContent.classList.remove('split-layout');
+
+                // Show whiteboard view only
+                whiteboardView.classList.add('active-view');
+                chatView.classList.remove('active-view');
+                chatView.style.display = 'none';
+                whiteboardView.style.display = 'flex';
+                whiteboardView.style.width = '100%';
+                initWhiteboard(); // Initialize whiteboard when shown
+            } else if (view === 'split') {
+                // Toggle split view if already active
+                if (workspaceContent.classList.contains('split-layout')) {
+                    // Exit split view and go back to chat view
+                    workspaceContent.classList.remove('split-layout');
+                    chatView.classList.add('active-view');
+                    whiteboardView.classList.remove('active-view');
+                    whiteboardView.style.display = 'none';
+                    chatView.style.display = 'flex';
+                    chatView.style.width = '100%';
+
+                    // Update the active button to chat
+                    viewToggles.forEach(t => {
+                        if (t.getAttribute('data-view') === 'chat') {
+                            t.classList.add('active');
+                        } else {
+                            t.classList.remove('active');
+                        }
+                    });
+
+                    console.log('Split view deactivated, returning to chat view');
+                } else {
+                    // Enter split view
+                    chatView.classList.add('active-view');
+                    whiteboardView.classList.add('active-view');
+                    chatView.style.display = 'flex';
+                    whiteboardView.style.display = 'flex';
+                    chatView.style.width = '50%';
+                    whiteboardView.style.width = '50%';
+
+                    // Add the split layout class to the workspace content
+                    workspaceContent.classList.add('split-layout');
+
+                    // Initialize whiteboard when shown
+                    initWhiteboard();
+
+                    console.log('Split view activated');
+                }
+            }
+        });
+    });
+
+    // Thread Panel Toggle
+    const threadBtn = document.querySelector('.thread-btn');
+    const closeThreadBtn = document.querySelector('.close-thread-btn');
+    const threadPanel = document.querySelector('.thread-panel');
+
+    threadBtn.addEventListener('click', function() {
+        threadPanel.classList.add('open');
+    });
+
+    closeThreadBtn.addEventListener('click', function() {
+        threadPanel.classList.remove('open');
+    });
+
+    // Mobile Navigation
+    const mobileNavBtns = document.querySelectorAll('.mobile-nav-btn');
+    const sidebar = document.querySelector('.sidebar');
+
+    mobileNavBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const view = this.getAttribute('data-view');
+
+            // Remove active class from all buttons
+            mobileNavBtns.forEach(b => b.classList.remove('active'));
+
+            // Add active class to clicked button
+            this.classList.add('active');
+
+            // Show the selected view
+            if (view === 'chat') {
+                // Exit split view if active
+                workspaceContent.classList.remove('split-layout');
+
+                // Show chat view
+                chatView.classList.add('active-view');
+                whiteboardView.classList.remove('active-view');
+                sidebar.classList.remove('open');
+                threadPanel.classList.remove('open');
+                whiteboardView.style.display = 'none';
+                chatView.style.display = 'flex';
+                chatView.style.width = '100%';
+            } else if (view === 'whiteboard') {
+                // Exit split view if active
+                workspaceContent.classList.remove('split-layout');
+
+                // Show whiteboard view
+                whiteboardView.classList.add('active-view');
+                chatView.classList.remove('active-view');
+                sidebar.classList.remove('open');
+                threadPanel.classList.remove('open');
+                chatView.style.display = 'none';
+                whiteboardView.style.display = 'flex';
+                whiteboardView.style.width = '100%';
+                initWhiteboard(); // Initialize whiteboard when shown
+            } else if (view === 'workspaces') {
+                sidebar.classList.toggle('open');
+                threadPanel.classList.remove('open');
+            } else if (view === 'profile') {
+                // Toggle user profile options (not implemented in this demo)
+            }
+        });
+    });
+
+    // Chat Input
+    const chatInput = document.querySelector('.chat-input');
+    const sendBtn = document.querySelector('.send-btn');
+    const emojiBtn = document.querySelector('.emoji-btn');
+    const attachmentBtn = document.querySelector('.attachment-btn');
+
+    // Set placeholder text for contenteditable div
+    chatInput.setAttribute('data-placeholder', chatInput.getAttribute('placeholder'));
+
+    chatInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    // Emoji picker functionality
+    emojiBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+
+        // Check if emoji picker already exists
+        let emojiPicker = document.querySelector('.emoji-picker');
+
+        if (emojiPicker) {
+            // If it exists, toggle visibility
+            if (emojiPicker.style.display === 'none') {
+                emojiPicker.style.display = 'grid';
+            } else {
+                emojiPicker.style.display = 'none';
+            }
+            return;
+        }
+
+        // Create emoji picker
+        emojiPicker = document.createElement('div');
+        emojiPicker.className = 'emoji-picker';
+
+        // Common emojis
+        const emojis = [
+            '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇',
+            '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚',
+            '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩',
+            '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣',
+            '👍', '👎', '👏', '🙌', '🤝', '👊', '✌️', '🤞', '🤟', '🤘',
+            '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '💔', '💯', '💢'
+        ];
+
+        // Add emojis to picker
+        emojis.forEach(emoji => {
+            const emojiBtn = document.createElement('button');
+            emojiBtn.className = 'emoji-item';
+            emojiBtn.textContent = emoji;
+            emojiBtn.addEventListener('click', function() {
+                // Insert emoji at cursor position
+                document.execCommand('insertText', false, emoji);
+                emojiPicker.style.display = 'none';
+            });
+            emojiPicker.appendChild(emojiBtn);
+        });
+
+        // Position the emoji picker
+        const rect = this.getBoundingClientRect();
+        emojiPicker.style.position = 'absolute';
+        emojiPicker.style.bottom = `${window.innerHeight - rect.top + 10}px`;
+        emojiPicker.style.right = `${window.innerWidth - rect.right + 30}px`;
+
+        // Add to document
+        document.body.appendChild(emojiPicker);
+
+        // Close emoji picker when clicking outside
+        document.addEventListener('click', function closeEmojiPicker(e) {
+            if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+                emojiPicker.style.display = 'none';
+                document.removeEventListener('click', closeEmojiPicker);
+            }
+        });
+    });
+
+    // File attachment functionality
+    attachmentBtn.addEventListener('click', function() {
+        // Create a hidden file input
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+
+        // Trigger click on the file input
+        fileInput.click();
+
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+
+                // Create file attachment preview
+                const filePreview = document.createElement('div');
+                filePreview.className = 'file-preview';
+
+                if (file.type.startsWith('image/')) {
+                    // For images, create a thumbnail
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'file-thumbnail';
+
+                        filePreview.innerHTML = `
+                            <div class="file-preview-content">
+                                ${img.outerHTML}
+                                <div class="file-info">
+                                    <div class="file-name">${file.name}</div>
+                                    <div class="file-size">${formatFileSize(file.size)}</div>
+                                </div>
+                                <button class="remove-file-btn">×</button>
+                            </div>
+                        `;
+
+                        // Insert file preview into chat input
+                        chatInput.appendChild(filePreview);
+
+                        // Add event listener to remove button
+                        filePreview.querySelector('.remove-file-btn').addEventListener('click', function() {
+                            filePreview.remove();
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    // For other files, show icon based on file type
+                    let fileIcon = 'description';
+
+                    if (file.name.endsWith('.pdf')) {
+                        fileIcon = 'picture_as_pdf';
+                    } else if (file.name.match(/\.(doc|docx)$/i)) {
+                        fileIcon = 'article';
+                    } else if (file.name.match(/\.(xls|xlsx)$/i)) {
+                        fileIcon = 'table_chart';
+                    } else if (file.name.match(/\.(ppt|pptx)$/i)) {
+                        fileIcon = 'slideshow';
+                    }
+
+                    filePreview.innerHTML = `
+                        <div class="file-preview-content">
+                            <span class="material-icons file-icon">${fileIcon}</span>
+                            <div class="file-info">
+                                <div class="file-name">${file.name}</div>
+                                <div class="file-size">${formatFileSize(file.size)}</div>
+                            </div>
+                            <button class="remove-file-btn">×</button>
+                        </div>
+                    `;
+
+                    // Insert file preview into chat input
+                    chatInput.appendChild(filePreview);
+
+                    // Add event listener to remove button
+                    filePreview.querySelector('.remove-file-btn').addEventListener('click', function() {
+                        filePreview.remove();
+                    });
+                }
+            }
+
+            // Remove the file input
+            document.body.removeChild(fileInput);
+        });
+    });
+
+    // Helper function to format file size
+    function formatFileSize(bytes) {
+        if (bytes < 1024) {
+            return bytes + ' B';
+        } else if (bytes < 1024 * 1024) {
+            return (bytes / 1024).toFixed(1) + ' KB';
+        } else {
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+    }
+
+    function sendMessage() {
+        // Get the HTML content from the contenteditable div
+        const messageHTML = chatInput.innerHTML.trim();
+
+        // Create a temporary div to extract text content
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = messageHTML;
+        const messageText = tempDiv.textContent.trim();
+
+        if (messageText || chatInput.querySelector('.file-preview')) {
+            // In a real app, this would send the message to a server
+            // For this demo, we'll just add it to the UI
+            addMessage(messageHTML);
+            chatInput.innerHTML = '';
+        }
+    }
+
+    function addMessage(messageHTML) {
+        const messagesContainer = document.querySelector('.chat-messages');
+        const messageGroup = document.querySelector('.message-group');
+
+        // First, remove any existing typing indicators
+        const existingTypingIndicators = messageGroup.querySelectorAll('.message.typing');
+        existingTypingIndicators.forEach(indicator => {
+            messageGroup.removeChild(indicator);
+        });
+
+        // Add the user's message
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message';
+
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const timeString = `${hours}:${minutes}`;
+
+        messageElement.innerHTML = `
+            <div class="message-avatar">
+                <img src="https://i.pravatar.cc/150?img=5" alt="You">
+            </div>
+            <div class="message-content">
+                <div class="message-header">
+                    <span class="message-author">You</span>
+                    <span class="message-time">${timeString}</span>
+                    <span class="message-status">
+                        <span class="material-icons">done</span>
+                    </span>
+                </div>
+                <div class="message-text">
+                    <p>${messageHTML}</p>
+                </div>
+            </div>
+        `;
+
+        messageGroup.appendChild(messageElement);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        // Simulate a response after a delay
+        setTimeout(() => {
+            // Add typing indicator AFTER the user's message
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'message typing';
+            typingIndicator.innerHTML = `
+                <div class="message-avatar">
+                    <img src="https://i.pravatar.cc/150?img=1" alt="Jane Doe">
+                </div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+
+            // Make sure to append it after the user's message
+            messageGroup.appendChild(typingIndicator);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Remove typing indicator and add response after a delay
+            setTimeout(() => {
+                // Remove the typing indicator
+                messageGroup.removeChild(typingIndicator);
+
+                // Add the response message
+                const responseElement = document.createElement('div');
+                responseElement.className = 'message';
+
+                responseElement.innerHTML = `
+                    <div class="message-avatar">
+                        <img src="https://i.pravatar.cc/150?img=1" alt="Jane Doe">
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">Jane Doe</span>
+                            <span class="message-time">${timeString}</span>
+                        </div>
+                        <div class="message-text">
+                            <p>Thanks for your message! Let's discuss this further in our next meeting.</p>
+                        </div>
+                        <div class="message-reactions">
+                            <button class="add-reaction-btn">
+                                <span class="material-icons">add_reaction</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Add the response to the message group
+                messageGroup.appendChild(responseElement);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 2000);
+        }, 1000);
+    }
+
+    // Thread Input
+    const threadInput = document.querySelector('.thread-input');
+    const threadSendBtn = document.querySelector('.thread-send-btn');
+
+    threadInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendThreadReply();
+        }
+    });
+
+    threadSendBtn.addEventListener('click', sendThreadReply);
+
+    function sendThreadReply() {
+        const message = threadInput.value.trim();
+        if (message) {
+            // In a real app, this would send the reply to a server
+            // For this demo, we'll just add it to the UI
+            addThreadReply(message);
+            threadInput.value = '';
+        }
+    }
+
+    function addThreadReply(text) {
+        const repliesContainer = document.querySelector('.thread-replies');
+
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const timeString = `${hours}:${minutes}`;
+
+        const replyElement = document.createElement('div');
+        replyElement.className = 'message';
+
+        replyElement.innerHTML = `
+            <div class="message-avatar">
+                <img src="https://i.pravatar.cc/150?img=5" alt="You">
+            </div>
+            <div class="message-content">
+                <div class="message-header">
+                    <span class="message-author">You</span>
+                    <span class="message-time">${timeString}</span>
+                </div>
+                <div class="message-text">
+                    <p>${text}</p>
+                </div>
+            </div>
+        `;
+
+        repliesContainer.appendChild(replyElement);
+        repliesContainer.scrollTop = repliesContainer.scrollHeight;
+    }
+
+    // Emoji Reactions
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.add-reaction-btn')) {
+            // In a real app, this would show an emoji picker
+            // For this demo, we'll just add a random emoji
+            const emojis = ['👍', '❤️', '😂', '🎉', '🙌', '👏', '🔥', '💯'];
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+
+            const messageContent = e.target.closest('.message-content');
+            let reactionsContainer = messageContent.querySelector('.message-reactions');
+
+            if (!reactionsContainer) {
+                reactionsContainer = document.createElement('div');
+                reactionsContainer.className = 'message-reactions';
+                messageContent.appendChild(reactionsContainer);
+            }
+
+            // Check if this emoji reaction already exists
+            const existingReaction = Array.from(reactionsContainer.querySelectorAll('.reaction')).find(r =>
+                r.querySelector('span').textContent === randomEmoji
+            );
+
+            if (existingReaction) {
+                // Increment count
+                const countElement = existingReaction.querySelector('.reaction-count');
+                const count = parseInt(countElement.textContent) + 1;
+                countElement.textContent = count;
+            } else {
+                // Add new reaction
+                const reactionElement = document.createElement('div');
+                reactionElement.className = 'reaction';
+                reactionElement.innerHTML = `
+                    <span>${randomEmoji}</span>
+                    <span class="reaction-count">1</span>
+                `;
+
+                // Insert before the add reaction button
+                reactionsContainer.insertBefore(reactionElement, e.target.closest('.add-reaction-btn'));
+            }
+        } else if (e.target.closest('.reaction')) {
+            // Toggle reaction (add/remove user's reaction)
+            const reactionElement = e.target.closest('.reaction');
+            const countElement = reactionElement.querySelector('.reaction-count');
+            let count = parseInt(countElement.textContent);
+
+            // In a real app, this would check if the user has already reacted
+            // For this demo, we'll just toggle between adding and removing
+            if (count === 1) {
+                reactionElement.remove();
+            } else {
+                count--;
+                countElement.textContent = count;
+            }
+        }
+    });
+
+    // Whiteboard functionality
+    let whiteboard;
+    let ctx;
+    let isDrawing = false;
+    let isPanning = false;
+    let lastX = 0;
+    let lastY = 0;
+    let startX = 0;
+    let startY = 0;
+    let panOffsetX = 0;
+    let panOffsetY = 0;
+    let currentColor = '#000000';
+    let currentTool = 'select';
+    let currentShape = 'rectangle';
+    let drawHistory = [];
+    let historyIndex = -1;
+    let tempCanvas;
+    let tempCtx;
+    let textInput = null;
+    let viewportX = 0;
+    let viewportY = 0;
+    // Scale for future zoom functionality
+
+    function initWhiteboard() {
+        whiteboard = document.getElementById('whiteboard');
+        ctx = whiteboard.getContext('2d');
+
+        // Create a temporary canvas for shape preview
+        if (!tempCanvas) {
+            tempCanvas = document.createElement('canvas');
+            tempCanvas.width = whiteboard.width;
+            tempCanvas.height = whiteboard.height;
+            tempCtx = tempCanvas.getContext('2d');
+        }
+
+        // Add click event listener to document to close shape selector when clicking outside
+        document.addEventListener('click', function(e) {
+            const shapeSelector = document.querySelector('.shape-selector');
+            const shapeToolBtn = document.querySelector('.tool-btn[data-tool="shape"]');
+
+            // If click is outside the shape selector and shape tool button
+            if (!shapeSelector.contains(e.target) && !shapeToolBtn.contains(e.target)) {
+                // Force close the dropdown
+                shapeSelector.style.display = 'none';
+
+                // Add a small delay before allowing the dropdown to show again
+                setTimeout(() => {
+                    shapeSelector.style.display = '';
+                }, 300);
+            }
+        });
+
+        // Set up event listeners for drawing
+        whiteboard.addEventListener('mousedown', startDrawing);
+        whiteboard.addEventListener('mousemove', draw);
+        whiteboard.addEventListener('mouseup', stopDrawing);
+        whiteboard.addEventListener('mouseout', stopDrawing);
+
+        // Touch support
+        whiteboard.addEventListener('touchstart', handleTouch);
+        whiteboard.addEventListener('touchmove', handleTouch);
+        whiteboard.addEventListener('touchend', stopDrawing);
+
+        // Tool selection
+        const toolBtns = document.querySelectorAll('.tool-btn[data-tool]');
+        toolBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tool = this.getAttribute('data-tool');
+
+                // Remove active class from all tool buttons
+                toolBtns.forEach(t => t.classList.remove('active'));
+
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                // Set current tool
+                currentTool = tool;
+
+                // Handle special tools
+                if (tool === 'clear') {
+                    clearWhiteboard();
+                } else if (tool === 'undo') {
+                    undo();
+                } else if (tool === 'redo') {
+                    redo();
+                }
+
+                // Remove any active text input
+                removeTextInput();
+
+                // Close any open shape selector if we're not clicking on the shape tool
+                if (tool !== 'shape') {
+                    const shapeSelector = document.querySelector('.shape-selector');
+                    shapeSelector.style.display = 'none';
+                    setTimeout(() => {
+                        shapeSelector.style.display = '';
+                    }, 300);
+                }
+
+                // Set cursor style based on tool
+                if (tool === 'select') {
+                    whiteboard.style.cursor = 'grab';
+                } else if (tool === 'pen') {
+                    whiteboard.style.cursor = 'crosshair';
+                } else if (tool === 'text') {
+                    whiteboard.style.cursor = 'text';
+                } else if (tool === 'eraser') {
+                    whiteboard.style.cursor = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\'%3E%3Cpath d=\'M0 0h24v24H0z\' fill=\'none\'/%3E%3Cpath d=\'M15.14 3c-.51 0-1.02.2-1.41.59L2.59 14.73c-.78.77-.78 2.04 0 2.83L5.03 20h7.94l8.88-8.88c.78-.77.78-2.04 0-2.83l-4.24-4.24c-.4-.39-.91-.59-1.42-.59zM6.45 18L4.97 16.5l7.07-7.07 1.47 1.47L6.45 18z\'/%3E%3C/svg%3E") 0 24, auto';
+                } else if (tool === 'shape') {
+                    whiteboard.style.cursor = 'crosshair';
+
+                    // If shape tool is selected, show the current shape indicator
+                    const shapeIndicator = this.querySelector('.current-shape-indicator');
+
+                    // Set the indicator text based on the current shape
+                    if (currentShape === 'rectangle') {
+                        shapeIndicator.textContent = '□';
+                    } else if (currentShape === 'circle') {
+                        shapeIndicator.textContent = '○';
+                    } else if (currentShape === 'line') {
+                        shapeIndicator.textContent = '╱';
+                    } else if (currentShape === 'arrow') {
+                        shapeIndicator.textContent = '→';
+                    }
+
+                    // Show the shape selector
+                    const shapeSelector = document.querySelector('.shape-selector');
+                    shapeSelector.style.display = 'flex';
+                } else {
+                    whiteboard.style.cursor = 'default';
+                }
+            });
+        });
+
+        // Shape selection
+        const shapeBtns = document.querySelectorAll('.shape-btn');
+        shapeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const shape = this.getAttribute('data-shape');
+
+                // Remove active class from all shape buttons
+                shapeBtns.forEach(s => s.classList.remove('active'));
+
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                // Set current shape
+                currentShape = shape;
+
+                // Make sure shape tool is selected
+                const shapeToolBtn = document.querySelector('.tool-btn[data-tool="shape"]');
+                toolBtns.forEach(t => t.classList.remove('active'));
+                shapeToolBtn.classList.add('active');
+                currentTool = 'shape';
+
+                // Update the shape indicator
+                const shapeIndicator = shapeToolBtn.querySelector('.current-shape-indicator');
+
+                // Set the indicator text based on the selected shape
+                if (shape === 'rectangle') {
+                    shapeIndicator.textContent = '□';
+                } else if (shape === 'circle') {
+                    shapeIndicator.textContent = '○';
+                } else if (shape === 'line') {
+                    shapeIndicator.textContent = '╱';
+                } else if (shape === 'arrow') {
+                    shapeIndicator.textContent = '→';
+                }
+
+                // Set cursor
+                whiteboard.style.cursor = 'crosshair';
+
+                // Force close the dropdown
+                const shapeSelector = document.querySelector('.shape-selector');
+                shapeSelector.style.display = 'none';
+
+                // Add a small delay before allowing the dropdown to show again
+                setTimeout(() => {
+                    shapeSelector.style.display = '';
+                }, 300);
+            });
+        });
+
+        // Color selection
+        const colorBtns = document.querySelectorAll('.color-btn');
+        colorBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all color buttons
+                colorBtns.forEach(c => c.classList.remove('active'));
+
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                // Set current color
+                currentColor = this.style.backgroundColor;
+            });
+        });
+
+        // Initialize with some content if the canvas is empty
+        if (historyIndex === -1) {
+            drawSampleContent();
+            saveToHistory();
+        }
+
+        // Initialize shape indicator
+        const shapeToolBtn = document.querySelector('.tool-btn[data-tool="shape"]');
+        const shapeIndicator = shapeToolBtn.querySelector('.current-shape-indicator');
+        shapeIndicator.textContent = '□'; // Default to rectangle
+    }
+
+    function saveToHistory() {
+        // If we're not at the end of the history, remove the future states
+        if (historyIndex < drawHistory.length - 1) {
+            drawHistory = drawHistory.slice(0, historyIndex + 1);
+        }
+
+        // Save current state
+        drawHistory.push(whiteboard.toDataURL());
+        historyIndex = drawHistory.length - 1;
+
+        console.log(`Saved to history. Index: ${historyIndex}, Total: ${drawHistory.length}`);
+    }
+
+    function undo() {
+        if (historyIndex > 0) {
+            historyIndex--;
+            loadFromHistory();
+        }
+    }
+
+    function redo() {
+        if (historyIndex < drawHistory.length - 1) {
+            historyIndex++;
+            loadFromHistory();
+        }
+    }
+
+    function loadFromHistory() {
+        const img = new Image();
+        img.onload = function() {
+            ctx.clearRect(0, 0, whiteboard.width, whiteboard.height);
+            ctx.drawImage(img, 0, 0);
+        };
+        img.src = drawHistory[historyIndex];
+        console.log(`Loaded from history. Index: ${historyIndex}, Total: ${drawHistory.length}`);
+    }
+
+    function startDrawing(e) {
+        [lastX, lastY] = getCoordinates(e);
+        startX = lastX;
+        startY = lastY;
+
+        if (currentTool === 'select') {
+            // Pan tool - change cursor
+            isPanning = true;
+            whiteboard.style.cursor = 'grabbing';
+            panOffsetX = viewportX;
+            panOffsetY = viewportY;
+        } else {
+            isDrawing = true;
+
+            // For pen tool, start drawing immediately
+            if (currentTool === 'pen') {
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(lastX, lastY);
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+            } else if (currentTool === 'text') {
+                // Create text input at click position
+                createTextInput(lastX, lastY);
+                isDrawing = false; // Don't continue drawing for text
+            }
+        }
+    }
+
+    function draw(e) {
+        // Always update cursor position for collaborative features
+        const [x, y] = getCoordinates(e);
+        updateCursorPosition(x, y);
+
+        if (isPanning) {
+            // Pan the canvas
+            const dx = x - startX;
+            const dy = y - startY;
+            viewportX = panOffsetX - dx;
+            viewportY = panOffsetY - dy;
+
+            // Apply transform to canvas
+            whiteboard.style.cursor = 'grabbing';
+
+            // Move the canvas using CSS transform
+            whiteboard.style.transform = `translate(${-viewportX}px, ${-viewportY}px)`;
+
+            // Also move the user cursors
+            const cursors = document.querySelectorAll('.user-cursor');
+            cursors.forEach(cursor => {
+                const cursorX = parseInt(cursor.getAttribute('data-original-x') || 0, 10);
+                const cursorY = parseInt(cursor.getAttribute('data-original-y') || 0, 10);
+                cursor.style.left = `${cursorX - viewportX}px`;
+                cursor.style.top = `${cursorY - viewportY}px`;
+            });
+
+            return;
+        }
+
+        if (!isDrawing) return;
+
+        if (currentTool === 'pen') {
+            // Freehand drawing
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(x, y);
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        } else if (currentTool === 'eraser') {
+            // Eraser tool
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(x, y);
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 20;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        } else if (currentTool === 'shape') {
+            // Shape tool - preview the shape while dragging
+            tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+            tempCtx.beginPath();
+
+            // Draw the selected shape
+            if (currentShape === 'rectangle') {
+                // Draw rectangle
+                const width = x - startX;
+                const height = y - startY;
+                tempCtx.rect(startX, startY, width, height);
+            } else if (currentShape === 'circle') {
+                // Draw circle
+                const radius = Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2));
+                tempCtx.arc(startX, startY, radius, 0, 2 * Math.PI);
+            } else if (currentShape === 'line') {
+                // Draw line
+                tempCtx.moveTo(startX, startY);
+                tempCtx.lineTo(x, y);
+            } else if (currentShape === 'arrow') {
+                // Draw arrow
+                drawArrowOnCanvas(tempCtx, startX, startY, x, y);
+            }
+
+            tempCtx.strokeStyle = currentColor;
+            tempCtx.lineWidth = 2;
+            tempCtx.stroke();
+
+            // Update the main canvas with the background and the temporary shape
+            ctx.clearRect(0, 0, whiteboard.width, whiteboard.height);
+            if (historyIndex >= 0) {
+                const img = new Image();
+                img.onload = function() {
+                    ctx.drawImage(img, 0, 0);
+                    ctx.drawImage(tempCanvas, 0, 0);
+                };
+                img.src = drawHistory[historyIndex];
+            } else {
+                ctx.drawImage(tempCanvas, 0, 0);
+            }
+        }
+
+        [lastX, lastY] = [x, y];
+    }
+
+    function stopDrawing() {
+        if (isPanning) {
+            isPanning = false;
+            whiteboard.style.cursor = 'grab';
+            return;
+        }
+
+        if (!isDrawing) return;
+        isDrawing = false;
+
+        if (currentTool === 'shape') {
+            // For shape tool, commit the shape to the canvas
+            ctx.beginPath();
+
+            if (currentShape === 'rectangle') {
+                const width = lastX - startX;
+                const height = lastY - startY;
+                ctx.rect(startX, startY, width, height);
+            } else if (currentShape === 'circle') {
+                const radius = Math.sqrt(Math.pow(lastX - startX, 2) + Math.pow(lastY - startY, 2));
+                ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+            } else if (currentShape === 'line') {
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(lastX, lastY);
+            } else if (currentShape === 'arrow') {
+                drawArrowOnCanvas(ctx, startX, startY, lastX, lastY);
+            }
+
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Save state to history
+            saveToHistory();
+        } else if (currentTool === 'pen' || currentTool === 'eraser') {
+            // Save state to history for pen and eraser
+            saveToHistory();
+        }
+    }
+
+    function drawArrowOnCanvas(context, fromX, fromY, toX, toY) {
+        const headLength = 15; // Length of arrow head
+        const angle = Math.atan2(toY - fromY, toX - fromX);
+
+        // Draw the line
+        context.beginPath();
+        context.moveTo(fromX, fromY);
+        context.lineTo(toX, toY);
+        context.stroke();
+
+        // Draw the arrow head
+        context.beginPath();
+        context.moveTo(toX, toY);
+        context.lineTo(
+            toX - headLength * Math.cos(angle - Math.PI / 6),
+            toY - headLength * Math.sin(angle - Math.PI / 6)
+        );
+        context.lineTo(
+            toX - headLength * Math.cos(angle + Math.PI / 6),
+            toY - headLength * Math.sin(angle + Math.PI / 6)
+        );
+        context.closePath();
+        context.fillStyle = currentColor;
+        context.fill();
+    }
+
+    function getCoordinates(e) {
+        let x, y;
+
+        if (e.type.includes('touch')) {
+            x = e.touches[0].clientX - whiteboard.getBoundingClientRect().left;
+            y = e.touches[0].clientY - whiteboard.getBoundingClientRect().top;
+        } else {
+            x = e.offsetX;
+            y = e.offsetY;
+        }
+
+        return [x, y];
+    }
+
+    function handleTouch(e) {
+        e.preventDefault();
+
+        if (e.type === 'touchstart') {
+            startDrawing(e);
+        } else if (e.type === 'touchmove') {
+            draw(e);
+        }
+    }
+
+    function createTextInput(x, y) {
+        // Remove any existing text input
+        removeTextInput();
+
+        // Create a new text input
+        textInput = document.createElement('textarea');
+        textInput.className = 'whiteboard-text-input';
+        textInput.style.position = 'absolute';
+        textInput.style.left = `${x}px`;
+        textInput.style.top = `${y}px`;
+        textInput.style.color = currentColor;
+        textInput.style.background = 'transparent';
+        textInput.style.border = '1px dashed ' + currentColor;
+        textInput.style.fontFamily = 'Inter, sans-serif';
+        textInput.style.fontSize = '16px';
+        textInput.style.padding = '4px';
+        textInput.style.minWidth = '100px';
+        textInput.style.minHeight = '24px';
+        textInput.style.zIndex = '100';
+        textInput.style.resize = 'both';
+        textInput.style.overflow = 'hidden';
+
+        // Add event listeners
+        textInput.addEventListener('blur', commitTextToCanvas);
+        textInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                textInput.blur();
+            }
+        });
+
+        // Add to whiteboard container
+        document.querySelector('.whiteboard-container').appendChild(textInput);
+
+        // Set a timeout to ensure the focus happens after the element is rendered
+        setTimeout(() => {
+            textInput.focus();
+
+            // Place cursor at the beginning of the textarea
+            textInput.setSelectionRange(0, 0);
+
+            // Add placeholder text
+            textInput.placeholder = 'Type here...';
+        }, 10);
+    }
+
+    function commitTextToCanvas() {
+        if (textInput && textInput.value.trim() !== '') {
+            const rect = textInput.getBoundingClientRect();
+            const whiteboardRect = whiteboard.getBoundingClientRect();
+
+            const x = rect.left - whiteboardRect.left;
+            const y = rect.top - whiteboardRect.top;
+
+            ctx.font = '16px Inter';
+            ctx.fillStyle = currentColor;
+
+            // Split text by newlines and draw each line
+            const lines = textInput.value.split('\n');
+            const lineHeight = 20;
+
+            lines.forEach((line, index) => {
+                ctx.fillText(line, x, y + 16 + (index * lineHeight));
+            });
+
+            // Save to history
+            saveToHistory();
+
+            console.log('Text added to canvas:', textInput.value);
+        } else {
+            console.log('No text to add to canvas');
+        }
+
+        removeTextInput();
+    }
+
+    function removeTextInput() {
+        if (textInput) {
+            textInput.removeEventListener('blur', commitTextToCanvas);
+            textInput.remove();
+            textInput = null;
+        }
+    }
+
+    function clearWhiteboard() {
+        // Clear the canvas
+        ctx.clearRect(0, 0, whiteboard.width, whiteboard.height);
+
+        // Draw sample content
+        drawSampleContent();
+
+        // Save to history
+        saveToHistory();
+    }
+
+    function updateCursorPosition(x, y) {
+        // In a real app, this would send the cursor position to other users
+        // For this demo, we'll just update the sample cursors
+        const cursors = document.querySelectorAll('.user-cursor');
+        if (cursors.length > 0) {
+            const randomCursor = cursors[Math.floor(Math.random() * cursors.length)];
+
+            // Store original positions for panning
+            if (!randomCursor.hasAttribute('data-original-x')) {
+                randomCursor.setAttribute('data-original-x', x);
+                randomCursor.setAttribute('data-original-y', y);
+            }
+
+            // Apply the current viewport offset
+            const displayX = x - viewportX;
+            const displayY = y - viewportY;
+
+            randomCursor.style.left = `${displayX}px`;
+            randomCursor.style.top = `${displayY}px`;
+
+            // Update the stored position
+            randomCursor.setAttribute('data-original-x', x);
+            randomCursor.setAttribute('data-original-y', y);
+        }
+    }
+
+    function drawSampleContent() {
+        // Draw a simple diagram as an example
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+
+        // Draw a rectangle
+        ctx.beginPath();
+        ctx.rect(200, 150, 200, 100);
+        ctx.stroke();
+
+        // Draw text
+        ctx.font = '16px Inter';
+        ctx.fillStyle = '#000000';
+        ctx.fillText('User Interface', 240, 200);
+
+        // Draw an arrow
+        drawArrow(400, 200, 500, 200);
+
+        // Draw another rectangle
+        ctx.beginPath();
+        ctx.rect(500, 150, 200, 100);
+        ctx.stroke();
+
+        // Draw text
+        ctx.fillText('API Layer', 550, 200);
+
+        // Draw an arrow down
+        drawArrow(300, 250, 300, 350);
+
+        // Draw a third rectangle
+        ctx.beginPath();
+        ctx.rect(200, 350, 200, 100);
+        ctx.stroke();
+
+        // Draw text
+        ctx.fillText('Database', 260, 400);
+
+        // Draw a circle
+        ctx.beginPath();
+        ctx.arc(600, 350, 50, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        // Draw text
+        ctx.fillText('Cache', 580, 350);
+
+        // Draw an arrow
+        drawArrow(500, 250, 600, 300);
+    }
+
+    function drawArrow(fromX, fromY, toX, toY) {
+        const headLength = 10;
+        const angle = Math.atan2(toY - fromY, toX - fromX);
+
+        ctx.beginPath();
+        ctx.moveTo(fromX, fromY);
+        ctx.lineTo(toX, toY);
+        ctx.stroke();
+
+        // Draw arrowhead
+        ctx.beginPath();
+        ctx.moveTo(toX, toY);
+        ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
+        ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+        ctx.closePath();
+        ctx.fillStyle = ctx.strokeStyle;
+        ctx.fill();
+    }
+
+    // Format toolbar functionality
+    const formatBtns = document.querySelectorAll('.format-btn');
+
+    formatBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Get the format type (bold, italic, etc.)
+            const format = this.getAttribute('title').toLowerCase();
+
+            // Focus the chat input
+            chatInput.focus();
+
+            // Apply formatting based on the button clicked
+            if (format === 'bold') {
+                document.execCommand('bold', false, null);
+            } else if (format === 'italic') {
+                document.execCommand('italic', false, null);
+            } else if (format === 'bulleted list') {
+                document.execCommand('insertUnorderedList', false, null);
+            } else if (format === 'numbered list') {
+                document.execCommand('insertOrderedList', false, null);
+            } else if (format === 'code') {
+                // Get the selection
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    const selectedText = range.toString();
+
+                    // Create a code element
+                    const codeElement = document.createElement('code');
+                    codeElement.textContent = selectedText;
+
+                    // Replace the selection with the code element
+                    range.deleteContents();
+                    range.insertNode(codeElement);
+
+                    // Move the cursor after the code element
+                    range.setStartAfter(codeElement);
+                    range.setEndAfter(codeElement);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                } else {
+                    // If no selection, insert a code element with placeholder
+                    document.execCommand('insertHTML', false, '<code>code</code>');
+                }
+            } else if (format === 'link') {
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    const selectedText = range.toString();
+
+                    // Prompt for URL
+                    const url = prompt('Enter URL:', 'https://');
+                    if (url) {
+                        // Create a link element
+                        const linkElement = document.createElement('a');
+                        linkElement.href = url;
+                        linkElement.target = '_blank';
+                        linkElement.textContent = selectedText || url;
+
+                        // Replace the selection with the link element
+                        range.deleteContents();
+                        range.insertNode(linkElement);
+
+                        // Move the cursor after the link element
+                        range.setStartAfter(linkElement);
+                        range.setEndAfter(linkElement);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                } else {
+                    // If no selection, insert a link with placeholder
+                    const url = prompt('Enter URL:', 'https://');
+                    if (url) {
+                        document.execCommand('insertHTML', false, `<a href="${url}" target="_blank">${url}</a>`);
+                    }
+                }
+            }
+
+            // Toggle active state for visual feedback
+            this.classList.toggle('active');
+
+            // Remove active state after a short delay
+            setTimeout(() => {
+                this.classList.remove('active');
+            }, 500);
+        });
+    });
+
+    // Recent chats functionality
+    const chatItems = document.querySelectorAll('.chat-item');
+
+    chatItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // In a real app, this would open the chat with this user
+            const chatName = this.querySelector('.chat-name').textContent;
+            console.log('Opening chat with:', chatName);
+
+            // Simulate opening a chat by focusing the chat input
+            chatInput.focus();
+
+            // Update the chat header to show who we're chatting with
+            const currentWorkspace = workspaceTitle.textContent;
+            workspaceTitle.textContent = `Chat with ${chatName}`;
+            workspaceSubtitle.textContent = 'Private conversation';
+
+            // Add a way to go back
+            const goBackBtn = document.createElement('button');
+            goBackBtn.className = 'go-back-btn';
+            goBackBtn.innerHTML = '<span class="material-icons">arrow_back</span>';
+            goBackBtn.style.position = 'absolute';
+            goBackBtn.style.left = '10px';
+            goBackBtn.style.top = '10px';
+            goBackBtn.style.background = 'none';
+            goBackBtn.style.border = 'none';
+            goBackBtn.style.color = 'var(--text-secondary)';
+            goBackBtn.style.cursor = 'pointer';
+            goBackBtn.style.zIndex = '5';
+
+            goBackBtn.addEventListener('click', function() {
+                workspaceTitle.textContent = currentWorkspace;
+                const activeWorkspace = document.querySelector('.workspace-item.active');
+                const workspaceName = activeWorkspace ? activeWorkspace.querySelector('.workspace-name').textContent : 'Team Alpha';
+                const totalCount = Math.floor(Math.random() * 5) + 3;
+                const onlineCount = Math.floor(Math.random() * 3) + 1;
+                workspaceSubtitle.textContent = `${totalCount} members • ${onlineCount} online`;
+                console.log(`Returned to workspace: ${workspaceName}`);
+                this.remove();
+            });
+
+            if (!document.querySelector('.go-back-btn')) {
+                document.querySelector('.workspace-header').appendChild(goBackBtn);
+            }
+        });
+    });
+
+    // Engagement tracking (simplified for demo)
+    function trackEngagement(action, details = {}) {
+        // In a real app, this would send analytics data to a server
+        console.log('Engagement:', action, details);
+    }
+
+    // Track page load
+    trackEngagement('page_load');
+
+    // Track view changes
+    viewToggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const view = this.getAttribute('data-view');
+            trackEngagement('view_change', { view });
+        });
+    });
+
+    // Track message sends
+    sendBtn.addEventListener('click', function() {
+        trackEngagement('message_sent');
+    });
+
+    // Track reactions
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.add-reaction-btn') || e.target.closest('.reaction')) {
+            trackEngagement('reaction_added');
+        }
+    });
+});
+
+
+    </script>
+</body>
+</html>
